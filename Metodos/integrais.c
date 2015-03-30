@@ -6,6 +6,8 @@
 
 typedef double(*funcao)(double);
 typedef double(*metodo)(funcao, int, double, double);
+typedef double(*funcao_dupla)(double, double);
+typedef double(*dupla_integral_func)(funcao_dupla, double, double, funcao, funcao);
 
 double rectangle_method(funcao f, int N, double a, double b);
 double newton_c_first_closed(funcao f, int N, double a, double b);
@@ -14,7 +16,7 @@ double newton_c_third_closed(funcao f, int N, double a, double b);
 double newton_c_first_open(funcao f, int N, double a, double b);
 double newton_c_second_open(funcao f, int N, double a, double b);
 double newton_c_third_open(funcao f, int N, double a, double b);
-double calculate_integral(funcao f, metodo m, double epsilon, int step_limit, double a, double b);
+double calculate_newton_integral(funcao f, metodo m, double epsilon, int step_limit, double a, double b);
 double xi_to_x_gauss(double xi, double a, double b);
 double xi_to_x_hermite(double xi, double a, double b);
 double gauss_legendre(funcao f, int N, int degree, double a, double b);
@@ -25,15 +27,19 @@ double improper_integral_simple_exponencial(funcao f, double a, double b, int st
 double improper_integral_double_exponencial(funcao f, double a, double b, int step_limit, double epsilon);
 double g_simple_exponencial(funcao f, double xi, double a, double b);
 double g_double_exponencial(funcao f, double xi, double a, double b);
+double double_integral(funcao_dupla f, double xa, double xb, funcao zi, funcao zs);
+double calc_double_integral(funcao_dupla f, dupla_integral_func d, double xa, double xb, funcao zi, funcao zs, double epsilon, double step_limit);	
 double sen(double x);
 double ident(double x);
 double x3(double x);
 double e_ident(double x);
 double funct1(double x);
+double func_dupl(double x, double y);
 
 int main(int argc, char const *argv[])
 {
-	double result = improper_integral_simple_exponencial(x3, 0, 1, 10000, 0.00005);
+	double result = calc_double_integral(func_dupl, double_integral, 0, 1, x3, sen, 0.0001, 10000);
+	//double result = gauss_legendre(x3, 1000, 3, 0, 1);
 	printf("Resultado foi: %f\n", result);
 	return 0;
 }
@@ -56,6 +62,10 @@ double e_ident(double x){
 
 double funct1(double x){
 	return x/sqrt(1-x*x);
+}
+
+double func_dupl(double x, double y){
+	return x*y;
 }
 
 double rectangle_method(funcao f, int N, double a, double b){
@@ -169,7 +179,7 @@ double newton_c_third_open(funcao f, int N, double a, double b){
 	return 5.0/24.0 * sum * delta;	
 }
 
-double calculate_integral(funcao f, metodo m, double epsilon, int step_limit, double a, double b){
+double calculate_newton_integral(funcao f, metodo m, double epsilon, int step_limit, double a, double b){
 	double integral_atual = 0.0, integral_ant = 0.0;
 	int N, j = 1;
 	
@@ -313,6 +323,7 @@ double gauss_hermite(funcao f, int N, int degree, double a, double b){
 	return integral;
 }
 
+//Arrumar uma função que mapeia de 0 a infinito
 double gauss_laguerre(funcao f, int N, int degree, double a, double b){
 	//Fonte dos pesos: http://www.efunda.com/math/num_integration/findgausslaguerre.cfm
 	double sup, inf, sum, integral = 0.0, weighs[degree], abc[degree], interval = (b-a)/N;
@@ -460,6 +471,98 @@ double improper_integral_simple_exponencial(funcao f, double a, double b, int st
 	return NAN;
 }
 
-/*double improper_integral_double_exponencial(funcao f, double a, double b, int step_limit, double epsilon){
+double improper_integral_double_exponencial(funcao f, double a, double b, int step_limit, double epsilon){
+	double inf_interval = -1, sup_interval = 1, xi_inf, xi_sup, integral_atual = 0.0, integral_ant = 0.0, integral_c_atual = 0.0, integral_c_anterior = 0.0;
+	int N;
 
-}*/
+	for (int i = 1; i <= step_limit; ++i)
+	{
+		xi_inf = inf_interval*i;
+		xi_sup = sup_interval*i;
+		//printf("xi_inf: %lf xi_sup: %lf\n", xi_inf, xi_sup);
+		//printf("i: %d\n", i);
+		for (int j = 1; j <= step_limit; ++j)
+		{
+			N = 2*j;
+
+			double xi, interval = (xi_sup-xi_inf)/N, sum = 0.0;
+			//printf("j: %d, N: %d\n", j, N);
+			for (int k = 0; k < N; ++k)
+			{
+				//printf("k: %d\n", k);
+				xi = xi_inf+(2.0*k+1.0)*(interval/2.0);
+				//printf("xi: %lf ", xi);
+				sum += g_double_exponencial(f, xi, a, b);
+				//printf("sum: %lf\n", sum);
+			}
+
+			integral_atual = sum*interval;
+			//printf("integral_atual: %lf\n", integral_atual);
+
+			if (fabs(integral_atual - integral_ant) < epsilon) {
+				break;
+			}
+
+			integral_ant = integral_atual;
+		}
+
+		integral_c_atual = integral_atual;
+		//printf("integral_c_atual: %lf\n", integral_c_atual);
+		//printf("integral_c_anterior: %lf\n", integral_c_anterior);
+		if (fabs(integral_c_atual - integral_c_anterior) < epsilon) {
+			return integral_c_atual;
+		}
+		integral_c_anterior = integral_c_atual;
+	}
+
+	return NAN;
+}
+
+double double_integral(funcao_dupla f, double xa, double xb, funcao yi, funcao ys){
+	int degree = 3;
+	double constant_x, constant_y, x, y, sum = 0.0, weighs[] = {0.8888888888888888, 0.5555555555555556, 0.5555555555555556}, abc[] = {0.0000000000000000, -0.7745966692414834, 0.7745966692414834};
+
+	constant_x = (xb-xa)/2.0;
+	for (int eta = 0; eta < degree; ++eta)
+	{
+		x = xi_to_x_gauss(abc[eta], xa, xb);
+		for (int xi = 0; xi < degree; ++xi)
+		{
+			double yi_val = yi(x), ys_val = ys(x);
+			printf("yi_val: %lf ys_val: %lf\n", yi_val, ys_val);
+			constant_y = (ys_val-yi_val)/2.0;
+			printf("const_y: %lf\n", constant_y);
+			y = xi_to_x_gauss(abc[xi], yi_val, ys_val);
+
+			sum += constant_y*weighs[eta]*weighs[xi]*f(x,y);
+			printf("sum: %lf\n", sum);
+		}
+	}
+	return sum*constant_x;
+}
+
+double calc_double_integral(funcao_dupla f, dupla_integral_func d, double xa, double xb, funcao zi, funcao zs, double epsilon, double step_limit){
+	double integral_ant = 0.0, integral_atual = 0.0, x_inf, x_sup, interval, N;
+
+	for (int i = 1; i <= step_limit; ++i)
+	{
+		N = 2*i;
+		interval = (xb-xa)/N;
+		integral_atual = 0.0;
+		for (int j = 0; j < N; ++j)
+		{
+			x_inf = xa+interval*j;
+			x_sup = x_inf+interval;
+
+			integral_atual += d(f, x_inf, x_sup, zi, zs);
+		}
+
+		if (fabs(integral_atual-integral_ant) < epsilon) {
+			return integral_atual;
+		}
+
+		integral_ant = integral_atual;
+	}
+
+	return NAN;
+}
