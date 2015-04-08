@@ -1,0 +1,14 @@
+
+class Node{
+	int frequency;
+	char member;
+	Node pai, filho_esq, filho dir;
+
+	Node(){
+
+	}
+}
+
+class Heap{
+	Node root; 
+}
