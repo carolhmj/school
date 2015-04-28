@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
 
 huff::Node::Node(char info_c, int frequency_c){
 	std::vector<char> v {info_c};
@@ -25,4 +26,12 @@ void huff::Node::print_node(){
 	}
 
 	std::cout << "} | " << this->frequency << " ]\n"; 
+}
+
+huff::Node::Node(const Node& n){
+	this->info = n.info;
+	this->frequency = n.frequency;
+	this->p = n.p;
+	this->e = n.e;
+	this->d = n.d;
 }

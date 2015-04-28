@@ -2,6 +2,7 @@
 #define NODE_H
 
 #include <vector>
+#include <memory>
 
 namespace huff{
 	class Node
@@ -13,10 +14,12 @@ namespace huff{
 		//Frequência do nó
 		int frequency;
 		//Nós pai, filho esquerdo e filho direito
-		Node *f, *e, *d;
+		std::shared_ptr<Node> p, e, d;
 
 		//Construtor padrão, gerado com a keyword do C++11 default
 		Node() = default;
+		//Construtor cópia
+		Node(const Node& n);
 		//Constutor que pega um char e uma frequência, usa para nós folha
 		Node(char info_c, int frequency_c);
 		//Construtor que pega um vetor de chars e uma frequência, usa para nós não folha
