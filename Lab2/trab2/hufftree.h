@@ -25,7 +25,10 @@ namespace huff{
 		std::string find_code(char character);
 
 		//Imprime a árvore no stdout, para debug
-		void print_tree(std::shared_ptr<Node> current);
+		void print_tree(std::shared_ptr<Node> current, std::string codigo, const char* debug);
+
+		//Procura determinado caractere no info de um nó
+		bool char_in_node(std::shared_ptr<Node> n, char character);
 
 		~HuffTree() = default;
 		

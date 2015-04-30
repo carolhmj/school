@@ -3,8 +3,8 @@
 
 
 namespace huff{
-	void compress(const char* input, const char* output);
-	void decompress(const char* input, const char* output);
+	void compress(const char* input, const char* output, const char* tree = "arvore");
+	void decompress(const char *input, const char* output, const char* tree = "arvore");
 }
 
 

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <memory>
+#include <fstream>
+#include <string>
 
 //Mudar a lógica pra uma coisa: quando o símbolo tem frequência 0, ignorá-lo!
 huff::HuffTree::HuffTree(huff::MinHeap base){
@@ -44,37 +46,61 @@ bool huff::HuffTree::is_empty(){
 }
 huff::HuffTree::HuffTree(char* description){}
 
-std::string huff::HuffTree::find_code(char character){}
+std::string huff::HuffTree::find_code(char character){
+	std::shared_ptr<Node> current = this->root;
+	std::string codigo;
 
-void huff::HuffTree::print_tree(std::shared_ptr<Node> current){
-	if (current!=nullptr) {
-		if (current->e == nullptr && current->d == nullptr){
-			std::cout << "folha[ valor: " << current->info[0] << " frequência: "  << current->frequency << " ]\n";
-		} else if (current->e == nullptr) {
-			std::cout << "folha[ valor: "; 
-			for (std::vector<char>::iterator i = current->info.begin(); i != current->info.end(); ++i)
-			{
-				std::cout << *i << " ";
-			}
-			std::cout << " frequência: "  << current->frequency << " ]\n";
-			print_tree(current->d);
-		} else if (current->d == nullptr) {
-			std::cout << "folha[ valor: "; 
-			for (std::vector<char>::iterator i = current->info.begin(); i != current->info.end(); ++i)
-			{
-				std::cout << *i << " ";
-			}
-			std::cout << " frequência: "  << current->frequency << " ]\n";
-			print_tree(current->e);
+	while(current->e != nullptr || current->d != nullptr){
+		if (current->e != nullptr && char_in_node(current->e,character)) {
+			//Vai para o filho esquerdo então o código é 1
+			codigo += "1";			
+			current = current->e;
+		} else if (current->d != nullptr && char_in_node(current->d,character)) {
+			//Vai para o filho direito então o código é 0
+			codigo += "0";
+			current = current->d;	
 		} else {
-			std::cout << "folha[ valor: "; 
-			for (std::vector<char>::iterator i = current->info.begin(); i != current->info.end(); ++i)
-			{
-				std::cout << *i << " ";
-			}
-			std::cout << " frequência: "  << current->frequency << " ]\n";
-			print_tree(current->e);
-			print_tree(current->d);
+			//Não é pra fazer nada aqui
+			std::cout << "Não deveria acontecer";
+		}
+	}
+	//Chegou a um nó folha, acabamos!
+	return codigo;
+}
+
+bool huff::HuffTree::char_in_node(std::shared_ptr<Node> n, char character){
+	std::vector<char> v = n->info;
+	for (std::vector<char>::iterator i = v.begin(); i != v.end(); ++i)
+	{
+		if ((*i) == character){
+			return true;
+		}
+	}
+	return false;
+}
+
+void huff::HuffTree::print_tree(std::shared_ptr<Node> current, std::string codigo, const char* debug){
+	if (current!=nullptr) {
+
+		if ((current->e == nullptr) && (current->d == nullptr)){
+
+			std::ofstream debugf(debug, std::ios::app);
+			debugf << "folha[ valor: " << current->info[0] << " frequencia: "  << current->frequency << " ] codigo:" << codigo << "\n";
+			debugf.close();
+
+		} else if (current->e == nullptr) {
+
+			print_tree(current->d, codigo+"0", debug);
+
+		} else if (current->d == nullptr) {
+
+			print_tree(current->e,codigo+"1",debug);
+
+		} else {
+
+			print_tree(current->e,codigo+"1",debug);
+			print_tree(current->d,codigo+"0",debug);
+
 		}
 	}
 }
