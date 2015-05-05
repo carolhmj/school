@@ -24,11 +24,17 @@ namespace huff{
 		Node(char info_c, int frequency_c);
 		//Construtor que pega um vetor de chars e uma frequência, usa para nós não folha
 		Node(std::vector<char> info_v, int frequency_c);
+		//Destrutor padrão
+		~Node() = default;
 
 		//Printa esse nó!
 		void print_node();
 
-		~Node() = default;
+		//Retorna ponteiro para um nó que é a combinação de dois nós de entrada
+		static std::shared_ptr<Node> combine_nodes(std::shared_ptr<Node> a, std::shared_ptr<Node> b);
+		//Procura determinado caractere no info de um nó
+		bool char_in_node(char character);
+
 		
 	};
 }
