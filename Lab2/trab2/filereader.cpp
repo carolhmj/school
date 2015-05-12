@@ -17,7 +17,7 @@ void huff::compress(const char* input, const char* output, const char* tree){
 	std::ifstream entrada(input, std::ios::binary);
 
 	if (!entrada){
-		std::cout << "Falha na leitura do arquivo!\n";
+		std::cout << "Falha na leitura do arquivo de entrada!\n";
 		return;
 	}
 
@@ -49,10 +49,12 @@ void huff::compress(const char* input, const char* output, const char* tree){
 	std::ofstream saida(output, std::ios::binary);
 
 	if (!saida){
-		std::cout << "Falha na leitura do arquivo!\n";
+		std::cout << "Falha na leitura do arquivo de saída!\n";
 		return;
 	}
 
+	saida << carlidos;
+	saida << "|";
 	saida << qtde_num_escritos;
 	for (std::vector<Node>::iterator i = lista_nos.begin(); i != lista_nos.end(); ++i)
 	{
@@ -71,10 +73,9 @@ void huff::compress(const char* input, const char* output, const char* tree){
 	int num_escrito;
 	char char_escrito;
 
-	//std::ofstream debug("comprimido");
-
 	while(entrada.read(&current,1)){
 		current_code = input_tree.find_code((unsigned char)current);
+		//std::cout << current_code << " current code\n";
 
 		//Enquanto caracteres podem ser escritos
 		while (buffer.size()+current_code.size() >= tam_char_bits) {
@@ -85,7 +86,6 @@ void huff::compress(const char* input, const char* output, const char* tree){
 			//Remove do código atual essa quantidade de caracteres
 			current_code.erase(0,faltam);
 
-			//debug << buffer << "\n";
 			num_escrito = std::stoi(buffer,nullptr,2);
 			char_escrito = (unsigned char)num_escrito;
 			saida << char_escrito;
@@ -95,10 +95,23 @@ void huff::compress(const char* input, const char* output, const char* tree){
 		//Não há caracteres o suficiente no buffer+código atual para escrever
 		buffer.append(current_code);
 	}
-	
+	//std::cout << buffer << " buffer\n";
+	if (buffer.size() > 0){
+		//Ainda restaram caracteres no buffer (a quantidade de bits não era múltipla de 8, escrevemos o resto)
+		faltam = tam_char_bits - buffer.size();
+		buffer.append(faltam, '1');
+
+		num_escrito = std::stoi(buffer,nullptr,2);
+		char_escrito = (unsigned char)num_escrito;
+		//std::cout << buffer << " buffer\n";
+
+		saida << char_escrito;
+		carescritos++;
+		buffer = "";
+	}
+
 	std::cout << carescritos << " caracteres escritos\n"; 
 
-	//debug.close();
 	entrada.close();
 	saida.close();
 }
@@ -108,13 +121,17 @@ void huff::decompress(const char *input, const char* output, const char* tree){
 	std::ifstream entrada(input, std::ios::binary);
 
 	if (!entrada){
-		std::cout << "Falha na leitura do arquivo!\n";
+		std::cout << "Falha na leitura do arquivo de entrada!\n";
 		return;
 	}
 
-	int qtde_num_escritos = 0;
+	int qtde_num_escritos;
 	std::vector<Node> lista_nos;
+	int total_characters;
+	char dummy;
 
+	entrada >> total_characters;
+	entrada >> dummy;
 	entrada >> qtde_num_escritos;
 
 	while (qtde_num_escritos > 0){
@@ -139,12 +156,6 @@ void huff::decompress(const char *input, const char* output, const char* tree){
 		qtde_num_escritos--;
 	}
 
-
-	/*for (std::vector<Node>::iterator i = lista_nos.begin(); i != lista_nos.end(); ++i)
-	{
-		i->print_node();
-	}*/
-
 	huff::MinHeap input_heap(lista_nos);
 	huff::HuffTree input_tree(input_heap);
 
@@ -155,10 +166,9 @@ void huff::decompress(const char *input, const char* output, const char* tree){
 	std::ofstream saida(output,std::ios::binary);
 
 	if (!saida){
-		std::cout << "Falha na leitura do arquivo!\n";
+		std::cout << "Falha na leitura do arquivo de saída!\n";
 		return;
 	}
-	//std::ofstream debug("descomprimido");
 
 	char current; 
 	std::string bit_buffer;
@@ -175,14 +185,12 @@ void huff::decompress(const char *input, const char* output, const char* tree){
 			if (bit_buffer.size() == 0) {
 				//Se não tivermos bits bufferizados, lemos o próximo caractere, convertemos para bits e colocamos no buffer
 				entrada.read(&current,1);
-				if (entrada.eof()){
-					finished = true;
-				} else {
-					qtde_char_lidos++;
-					std::bitset<8> current_byte((unsigned long long)current);
-					bit_buffer = current_byte.to_string();
-					//debug << bit_buffer << "\n";
-				}
+				qtde_char_lidos++;
+
+				unsigned char current_ = (unsigned char)current;
+				std::bitset<8> current_byte(current_);
+				bit_buffer = current_byte.to_string();
+				//std::cout << bit_buffer << " bit buffer\n";
 			}
 			//Pegamos o primeiro bit do buffer e vemos para onde vamos na árvore
 			current_bit = bit_buffer[0];
@@ -196,6 +204,10 @@ void huff::decompress(const char *input, const char* output, const char* tree){
 		}
 		//Chegamos em uma folha, então escrevemos o caractere no arquivo de saída
 		qtde_char_escritos++;
+		//std::cout << qtde_char_escritos << " chars escritos\n";
+		if (qtde_char_escritos == total_characters) {
+			finished = true;
+		}
 		saida << current_position->info[0];
 		//Voltamos para o começo da árvore
 		current_position = input_tree.root;
@@ -203,8 +215,6 @@ void huff::decompress(const char *input, const char* output, const char* tree){
 
 	std::cout << qtde_char_lidos << " caracteres lidos.\n";
 	std::cout << qtde_char_escritos << " caracteres escritos.\n";
-
-	//debug.close();
 
 	entrada.close();
 	saida.close();
