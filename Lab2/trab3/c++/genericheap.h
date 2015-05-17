@@ -1,5 +1,5 @@
-#ifndef GenericHeap_H
-#define GenericHeap_H
+#ifndef GENERICHEAP_H
+#define GENERICHEAP_H
 
 #include <vector>
 #include <cmath>
@@ -14,14 +14,14 @@ namespace genheap{
 	{
 	public:
 
-		//Heap é implantado como um vetor de nós
+		//Heap é implantado como um vetor de nós e uma função de comparação
 		std::vector<T> members;
-		//std::function<bool(T,T)> compare;
+		std::function<bool(T,T)> compare;
 
 		//Construtores, tanto usando vetor quanto usando array
 		GenericHeap() = default;
-		GenericHeap(T* list, int tamanho/*, std::function<bool(T,T)> compare*/);
-		GenericHeap(std::vector<T> list/*, std::function<bool(T,T)> compare*/);
+		GenericHeap(T* list, int tamanho, std::function<bool(T,T)> compare = [](T a, T b){return a<b;});
+		GenericHeap(std::vector<T> list, std::function<bool(T,T)> compare = [](T a, T b){return a<b;});
 
 		//Retorna as posições relativas ao elemento do índice i
 		int pai(int i);
@@ -46,8 +46,9 @@ namespace genheap{
 
 
 	template <typename T>
-	GenericHeap<T>::GenericHeap(std::vector<T> list){
+	GenericHeap<T>::GenericHeap(std::vector<T> list, std::function<bool(T,T)> compare){
 		
+		this->compare = compare;
 		for (typename std::vector<T>::iterator i = list.begin(); i != list.end(); ++i)
 		{
 			inserir_heap(*i);	
@@ -55,8 +56,9 @@ namespace genheap{
 	}
 
 	template <typename T>
-	GenericHeap<T>::GenericHeap(T* list, int tamanho){
+	GenericHeap<T>::GenericHeap(T* list, int tamanho, std::function<bool(T,T)> compare){
 
+		this->compare = compare;
 		T *search, *end = list+tamanho;
 		for (search = list; search < end; ++search)
 		{
@@ -87,7 +89,8 @@ namespace genheap{
 	template <typename T>
 	void GenericHeap<T>::subir_no_heap(int i){
 		//Compara o elemento de índice i com seu pai, se este for maior, troca os dois e continua recursivamente; senão, ou se chegar na raiz, para
-		while( (i>0) && (this->members[pai(i)] > this->members[i]) ){
+		//while( (i>0) && (this->members[pai(i)] > this->members[i]) ){
+		while( (i>0) && ( !this->compare( this->members[pai(i)], this->members[i] ) ) ){
 			T aux = this->members[i];
 			this->members[i] = this->members[pai(i)];
 			this->members[pai(i)] = aux;
@@ -99,10 +102,12 @@ namespace genheap{
 	void GenericHeap<T>::descer_no_heap(int i){
 		//Compara o elemento de índice i com seus filhos, se for maior que algum deles, troca com algum e continua recursivamente; senão, ou se chegar em uma folha, para
 		int menor = i;
-		if ((filho_esq(i) < heap_size()) && (this->members[i] > this->members[filho_esq(i)])) {
+		//if ((filho_esq(i) < heap_size()) && (this->members[i] > this->members[filho_esq(i)])) {
+		if ((filho_esq(i) < heap_size()) && ( !this->compare(this->members[i], this->members[filho_esq(i)]) ) ){	
 			menor = filho_esq(i);
 		}
-		if ((filho_dir(i) < heap_size()) && (this->members[menor] > this->members[filho_dir(i)])){
+		//if ((filho_dir(i) < heap_size()) && (this->members[menor] > this->members[filho_dir(i)])){
+		if ((filho_dir(i) < heap_size()) && ( !this->compare(this->members[menor], this->members[filho_dir(i)] ) ) ) {
 			menor = filho_dir(i);
 		}
 		if (menor!=i){
