@@ -34,7 +34,6 @@ namespace huff{
 		static std::shared_ptr<Node> combine_nodes(std::shared_ptr<Node> a, std::shared_ptr<Node> b);
 		//Procura determinado caractere no info de um nó
 		bool char_in_node(char character);
-
 		
 	};
 }
