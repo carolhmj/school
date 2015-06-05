@@ -165,6 +165,11 @@ void huff::decompress(const char *input, const char* output, const char* tree){
 	
 	std::ofstream saida(output,std::ios::binary);
 
+	if (total_characters == 0) {
+		std::cout << "Arquivo original não contem caracteres\n";
+		return;	
+	}
+
 	if (!saida){
 		std::cout << "Falha na leitura do arquivo de saída!\n";
 		return;

@@ -76,7 +76,7 @@ huff::Node huff::MinHeap::extrair_min(){
 		descer_no_heap(0);
 		return retorno;
 	} else {
-		throw std::range_error("a"); 
+		throw std::range_error("Heap vazio!"); 
 	}
 }
 

@@ -16,15 +16,8 @@ huff::HuffTree::HuffTree(huff::MinHeap base){
 		//Extrai os dois menores elementos do heap sucessivamente
 		elem_a = std::shared_ptr<Node>(new Node(base.extrair_min()));
 		elem_b = std::shared_ptr<Node>(new Node(base.extrair_min()));
-		//Combina as informações dos dois nós
-		/*std::vector<char> combined_elements(elem_a->info);
-		combined_elements.insert(combined_elements.end(), (elem_b->info).begin(), (elem_b->info).end());
-		int combined_frequency = elem_a->frequency+elem_b->frequency;*/
-
-		//Criar o novo nó com as informações combinadas e fazê-lo apontar para os filhos
-		//std::shared_ptr<Node> new_node(new Node(combined_elements, combined_frequency));
+		
 		std::shared_ptr<Node> new_node = huff::Node::combine_nodes(elem_a,elem_b);
-		//new_node->print_node();
 		new_node->e = elem_a;
 		new_node->d = elem_b;
 
@@ -35,7 +28,7 @@ huff::HuffTree::HuffTree(huff::MinHeap base){
  	}
  	if (base.heap_size() == 1) {
  		root_n = std::shared_ptr<Node>(new Node(base.extrair_min()));
- 		//root_n.print_node();
+ 		
  		this->root = root_n;
  		this->empty = false;
  	}
@@ -45,7 +38,6 @@ huff::HuffTree::HuffTree(huff::MinHeap base){
 bool huff::HuffTree::is_empty(){
 	return this->empty;
 }
-huff::HuffTree::HuffTree(char* description){}
 
 std::string huff::HuffTree::find_code(char character){
 	std::shared_ptr<Node> current = this->root;

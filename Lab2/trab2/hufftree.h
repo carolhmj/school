@@ -17,9 +17,7 @@ namespace huff{
 		HuffTree() = default;
 		//Constrói uma árvore de Huffman a partir de um heap base
 		HuffTree(MinHeap base);
-		//Constrói uma árvore de Huffman a partir de uma descrição dos caracteres e suas frequências
-		HuffTree(char* description);
-
+		
 		bool is_empty();
 		//Função que dado um caractere retorna o código apropriado
 		std::string find_code(char character);
