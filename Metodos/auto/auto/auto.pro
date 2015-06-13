@@ -23,3 +23,5 @@ HEADERS += \
     autovalvec.h
 
 LIBS += -larmadillo
+
+QMAKE_CXXFLAGS += -g
