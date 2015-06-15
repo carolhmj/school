@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
+#define TRUE 1
+#define FALSE 0
 
 int generic_compare_int(void* a, void* b){
 	if ( *((int*) a) < *((int*) b) ){
@@ -36,46 +40,54 @@ void print_string(void* a){
 }
 
 void print_float(void* a){
-	printf("%f", *((float*)a) );
+	printf("%.2f", *((float*)a) );
+}
+
+int qsort_compare (const void * a, const void * b)
+{
+  if ( *(int*)a <  *(int*)b ) return -1;
+  if ( *(int*)a == *(int*)b ) return 0;
+  if ( *(int*)a >  *(int*)b ) return 1;
 }
 
 int main()
 {
-	heap *a_heap;
-	//a_heap = make_heap(generic_compare_int, print_int, sizeof(int), 10);
-	//a_heap = make_heap(generic_compare_string, print_string, sizeof(char*),10);
-	a_heap = make_heap(generic_compare_float, print_float, sizeof(float), 1);
-	printf("heap max size: %zd size of elements: %zd heap_size: %zd\n", a_heap->heap_max_size, a_heap->element_size, a_heap->heap_size);
+	int el_num = 1000000;
+	int v[el_num];
+
+	printf("Populando o vetor... com %d elementos\n", el_num);
+	//Preenchendo o vetor
+	for (int i = 0; i < el_num; i++){
+		v[i] = el_num - i;
+	}
+
+	printf("Ordenando...\n");
+	//Chamando a qsort e guardando o tempo
+	clock_t starttime = clock(); 
+	int* vord = (int*) heap_sort((void*)v, generic_compare_int, print_int, sizeof(int), el_num);
+	clock_t endtime = clock();
+
+	//Verificando a ordenação
+	int ordenado = TRUE;
+	for (int i = 1; i < el_num; i++){
+		if (vord[i-1] > vord[i]) {
+			ordenado = FALSE;
+		}
+	}
+
+	//Imprimindo como está a ordenação usando o heap sort
+	char* ordenacao = ordenado ? "ordenado" : "não-ordenado";
+	double totaltime = (double)(endtime - starttime) / CLOCKS_PER_SEC;
+
+	printf("O vetor está %s e o tempo que levou foi %.5lf segundos\n", ordenacao, totaltime);
 	
-	//int* insert = (int*)malloc(sizeof(int)*5);
-	//insert[0] = 40; insert[1] = 20; insert[2] = 18; insert[3] = 15; insert[4] = 9; insert[5] = 5;
+	//Imprimindo como está a ordenação usando o qsort
+	clock_t starttime_qsort = clock(); 
+	qsort((void*)v, el_num, sizeof(int), qsort_compare);
+	clock_t endtime_qsort = clock();
+	double totaltime_qsort = (double)(endtime_qsort - starttime_qsort) / CLOCKS_PER_SEC;
 
-	/*char* insert[5];
-
-	insert[0] = "e";
-	insert[1] = "d";
-	insert[2] = "c";
-	insert[3] = "b";
-	insert[4] = "a";*/
-
-	float insert[5];
-
-	insert[0] = 999.99; insert[1] = 200.19; insert[2] = 178.89; insert[3] = 1000.1; insert[4] = 99.1; 
-
-	for(int i = 0; i < 5; ++i){
-		insert_heap(a_heap, (void*)(insert+i));
-	}
-
-	printf("a heap: ");
-	print_heap(a_heap);
-
-	printf("removendo...\n");
-	void* dest = malloc(a_heap->element_size);
-	for(int i = 0; i < 4; ++i){
-		extract_heap(a_heap, dest);
-		//printf("removed: %d\n", *((int*)dest));
-		print_heap(a_heap);
-	}
+	printf("A ordenação usando qsort levou %.5lf segundos\n", totaltime_qsort);
 
 	return 0;
 }

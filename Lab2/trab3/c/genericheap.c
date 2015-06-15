@@ -145,3 +145,22 @@ void swap(void* a, void* b, size_t bytes){
 	memcpy(a, b, bytes);
 	memcpy(b, aux, bytes);
 }
+
+void* heap_sort(void* elements, compare_function comp, print_function pf, size_t element_size, size_t array_size){
+	heap* sort = make_heap(comp, pf, element_size, array_size);
+
+	char* elements_ins = (char*) elements;
+	for (size_t i = 0; i < array_size; ++i)
+	{
+		insert_heap(sort, (void*)(elements_ins + i*element_size) );
+	}
+
+	void* elements_ordered = malloc(element_size*array_size);
+
+	for (size_t i = 0; i < array_size; ++i)
+	{
+		extract_heap(sort, (void*)((char*)elements_ordered + i*element_size) );
+	}
+
+	return elements_ordered;	
+}

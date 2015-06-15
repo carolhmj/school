@@ -38,6 +38,7 @@ namespace genheap{
 		void subir_no_heap(int i);
 		void descer_no_heap(int i);
 
+		std::vector<T> heap_sort();
 		void print_heap();
 
 		~GenericHeap() = default;
@@ -147,6 +148,17 @@ namespace genheap{
 			std::cout << (*i) << " ";
 		}
 		std::cout << "\n)\n";
+	}
+
+	template <typename T>
+	std::vector<T> GenericHeap<T>::heap_sort(){
+		std::vector<T> ordered;
+		int qtde_elem = this->members.size();
+		for (int i = 0; i < qtde_elem; i++){
+			ordered.push_back(this->extrair());
+		}
+
+		return ordered;
 	}
 
 }

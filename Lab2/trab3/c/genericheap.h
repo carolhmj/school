@@ -31,4 +31,5 @@ void sift_down(heap* h, size_t pos);
 void free_heap(heap* h);
 void print_heap(heap* h);
 void swap(void* a, void* b, size_t bytes);
+void* heap_sort(void* elements, compare_function comp, print_function pf, size_t element_size, size_t array_size);
 #endif
