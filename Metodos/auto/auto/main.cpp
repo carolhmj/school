@@ -8,12 +8,12 @@ int main()
 {
     std::cout << "Começando os trabalhos\n";
 
-    mat A("4 2 2 1; 2 -3 1 1; 2 1 3 1; 1 1 1 2");
+    mat A("4 2 1; 2 8 2; 1 2 6");
     std::cout << "A matriz é: \n";
     A.print(std::cout);
     std::cout << "\n";
-    resultado_transformacao res = householder_simpl(A);
-    std::cout << "A matriz diagonal resultado de householder é: \n";
+    resultado_transformacao res = diagonalizacao_QR(A, 0.0001);
+    std::cout << "A matriz diagonal resultado de jacobi é: \n";
     res.newmat.print(std::cout);
     std::cout << "\n";
 }

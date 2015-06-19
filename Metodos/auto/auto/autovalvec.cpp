@@ -138,3 +138,102 @@ vec construir_n(mat A, int j)
     n.print("n: ");
     return n;
 }
+
+
+resultado_transformacao jacobi(mat A, double epsilon)
+{
+    mat Ares = A;
+    mat acum(A.n_rows, A.n_cols, fill::eye);
+    while (!diagonal(Ares, epsilon)) {
+        for (unsigned int j=0; j < A.n_cols-1 ; j++){
+
+            for (unsigned int i=j+1; i < A.n_cols; i++){
+                //Prenche com a identidade
+                 mat J(A.n_rows, A.n_cols, fill::eye);
+
+                 //Calcula o ângulo desejado
+                 double theta = M_PI/4;
+                 if (Ares(i,i) != Ares(j,j)) {
+                     theta = std::atan( -2*Ares(i,j)/ (Ares(i,i)-Ares(j,j)) ) / 2;
+                 }
+
+                 J(i,i) = std::cos(theta);
+                 J(j,j) = std::cos(theta);
+                 J(i,j) = std::sin(theta);
+                 J(j,i) = -1*std::sin(theta);
+
+                 Ares = J.t() * Ares * J;
+                 acum = acum * J;
+
+            }
+        }
+        Ares.print("Matriz do passo:");
+    }
+
+    resultado_transformacao res;
+    res.newmat = Ares;
+    res.transformationseq = acum;
+    return res;
+}
+
+
+bool diagonal(mat A, double epsilon)
+{
+    for (unsigned int i = 0; i < A.n_rows; i++) {
+        for (unsigned int j = 0; j < A.n_cols; j++) {
+            //Se existe algum elemento fora da diagonal que é maior que epsilon...
+            if ( (i!=j) && (std::fabs(A(i,j)) > epsilon) ) {
+                return false;
+            }
+        }
+    }
+    //Se percorreu todos e não encontrou nenhum fora da diagonal maior que epsilon...
+    return true;
+}
+
+
+resultado_transformacao diagonalizacao_QR(mat A, double epsilon)
+{
+    mat Ares = A;
+    mat acum(A.n_rows, A.n_cols, fill::eye);
+
+    while(!diagonal(Ares, epsilon)){
+
+        mat QT(A.n_rows, A.n_cols, fill::eye);
+
+        for (unsigned int j=0; j < A.n_cols-1 ; j++){
+            for (unsigned int i=j+1; i < A.n_cols; i++){
+                //Prenche com a identidade
+                mat JT(A.n_rows, A.n_cols, fill::eye);
+
+                //Calcula o ângulo desejado
+                double theta = M_PI/2;
+                if (Ares(j,j) != 0) {
+                    theta = std::atan(Ares(i,j)/Ares(j,j));
+                }
+
+                JT(i,i) = std::cos(theta);
+                JT(j,j) = std::cos(theta);
+                JT(i,j) = -1*std::sin(theta);
+                JT(j,i) = std::sin(theta);
+
+                Ares = JT*Ares;
+
+                QT = JT*QT;
+
+            }
+        }
+
+        mat Q = QT.t();
+        //Ares é R, multiplica por Q
+        Ares.print("Matriz R:");
+        Ares = Ares * Q;
+        //Acumula Q
+        acum = acum * Q;
+    }
+
+    resultado_transformacao res;
+    res.newmat = Ares;
+    res.transformationseq = acum;
+    return res;
+}
