@@ -9,16 +9,16 @@ int main()
 {
 	//Criando o vetor de elementos
 	int el_num = 1000000;
-	std::vector<int> v;
+	int v[el_num];
 	for (int i = 0; i < el_num; i++){
-		v.push_back(el_num - i);
+		v[i] = (el_num - i);
 	}
 
 
 	//Criando a heap e a ordenação, e medindo o tempo
 	clock_t starttime = clock(); 
 	
-	genheap::GenericHeap<int> heap(v);
+	genheap::GenericHeap<int> heap((int*)v, el_num);
 	std::vector<int> vord = heap.heap_sort();
 
 	clock_t endtime = clock();
@@ -38,14 +38,14 @@ int main()
 
 	//Usando o std::sort do header algorithm	
 
-	clock_t starttime_sort = clock(); 
+	/*clock_t starttime_sort = clock(); 
 	
 	std::sort(v.begin(), v.end());
 
 	clock_t endtime_sort = clock();
 	double dif_sort = (double)(endtime_sort - starttime_sort) / CLOCKS_PER_SEC;
 
-	std::cout << "Usando o template std::sort do header algorithm, o tempo é: " << dif_sort << " segundos\n";
+	std::cout << "Usando o template std::sort do header algorithm, o tempo é: " << dif_sort << " segundos\n";*/
 
 	return 0;
 }

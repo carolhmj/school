@@ -1,5 +1,5 @@
-#ifndef GENERICHEAP_H
-#define GENERICHEAP_H
+#ifndef GENERICHEAP_C_H
+#define GENERICHEAP_C_H
 
 #include <math.h>
 #include <stdlib.h>

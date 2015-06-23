@@ -1,5 +1,5 @@
-#ifndef GENERICHEAP_H
-#define GENERICHEAP_H
+#ifndef GENERICHEAP_CPLUS_H
+#define GENERICHEAP_CPLUS_H
 
 #include <vector>
 #include <cmath>
