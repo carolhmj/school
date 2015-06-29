@@ -1,71 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-#define PI 3.14159265358979323846
-
-typedef double(*funcao)(double);
-typedef double(*metodo)(funcao, int, double, double);
-typedef double(*funcao_dupla)(double, double);
-typedef double(*dupla_integral_func)(funcao_dupla, double, double, funcao, funcao);
-
-double rectangle_method(funcao f, int N, double a, double b);
-double newton_c_first_closed(funcao f, int N, double a, double b);
-double newton_c_second_closed(funcao f, int N, double a, double b);
-double newton_c_third_closed(funcao f, int N, double a, double b);
-double newton_c_first_open(funcao f, int N, double a, double b);
-double newton_c_second_open(funcao f, int N, double a, double b);
-double newton_c_third_open(funcao f, int N, double a, double b);
-double calculate_newton_integral(funcao f, metodo m, double epsilon, int step_limit, double a, double b);
-double xi_to_x_gauss(double xi, double a, double b);
-double xi_to_x_hermite(double xi, double a, double b);
-double gauss_legendre(funcao f, int N, int degree, double a, double b);
-double gauss_hermite(funcao f, int N, int degree, double a, double b);
-double gauss_laguerre(funcao f, int N, int degree, double a, double b);
-double gauss_cheby(funcao f, int N, int degree, double a, double b);
-double improper_integral_simple_exponencial(funcao f, double a, double b, int step_limit, double epsilon);
-double improper_integral_double_exponencial(funcao f, double a, double b, int step_limit, double epsilon);
-double g_simple_exponencial(funcao f, double xi, double a, double b);
-double g_double_exponencial(funcao f, double xi, double a, double b);
-double double_integral(funcao_dupla f, double xa, double xb, funcao zi, funcao zs);
-double calc_double_integral(funcao_dupla f, dupla_integral_func d, double xa, double xb, funcao zi, funcao zs, double epsilon, double step_limit);	
-double sen(double x);
-double ident(double x);
-double x3(double x);
-double e_ident(double x);
-double funct1(double x);
-double func_dupl(double x, double y);
+#include "integrais.h"
 
 int main(int argc, char const *argv[])
 {
-	double result = calc_double_integral(func_dupl, double_integral, 0, 1, x3, sen, 0.0001, 10000);
-	//double result = gauss_legendre(x3, 1000, 3, 0, 1);
-	printf("Resultado foi: %f\n", result);
+	double result = gauss_legendre(teste, 0, 10, 2, 10000, 0.001);
+	printf("O resultado da integral é: %f\n", result);
 	return 0;
 }
 
-double sen(double x){
-	return sin(x);
+double teste(double x){
+	return x*x;
 }
-
-double ident(double x){
-	return x;
-}
-
-double x3(double x){
-	return x*x*x;
-}
-
-double e_ident(double x){
-	return exp(-(x*x))*x;
-}
-
-double funct1(double x){
-	return x/sqrt(1-x*x);
-}
-
-double func_dupl(double x, double y){
-	return x*y;
+double teste_dupla(double x, double y){
+	return x+y;
 }
 
 double rectangle_method(funcao f, int N, double a, double b){
@@ -185,9 +134,7 @@ double calculate_newton_integral(funcao f, metodo m, double epsilon, int step_li
 	
 	while(j < step_limit) {
 		N = 2*j;
-		printf("N: %d\n", N);
 		integral_atual = m(f, N, a, b);
-		//printf("%lf (%lf)\n", integral_atual, fabs(integral_atual-integral_ant));
 		if (fabs(integral_atual - integral_ant) < epsilon) {
 			printf("Integral calculada com sucesso!\n");
 			return integral_atual;
@@ -208,10 +155,10 @@ double xi_to_x_hermite(double xi, double a, double b){
 	return (a+b)*(1.0/2.0) + (b-a)*(1.0/2.0)*tanh(xi);
 }
 
-double gauss_legendre(funcao f, int N, int degree, double a, double b){
+double gauss_legendre(funcao f, double a, double b, int degree, int step_limit, double epsilon){
 	//Fonte dos pesos: http://pomax.github.io/bezierinfo/legendre-gauss.html
-	double sup, inf, sum, integral = 0.0, weighs[degree], abc[degree], interval = (b-a)/N;
-
+	double sup, inf, sum, integral_ant, integral = 0.0, weighs[degree], abc[degree], interval;
+	int k = 1, N;
 	if (degree == 2){
 		double assign_w[] = {1.0, 1.0};
 		double assign_abc[] = {-0.5773502691896257, 0.5773502691896257};
@@ -241,28 +188,47 @@ double gauss_legendre(funcao f, int N, int degree, double a, double b){
 		return NAN;
 	}
 
-	for (int i = 0; i < N; ++i)
-	{
+	while (k < step_limit) {
+
+		integral_ant = integral;
+		N = 1*k;
+
+		integral = 0.0;
+
+		interval = (b-a)/N;
 		
-		inf = a + i*interval;
-		sup = inf + interval;
-		//printf("%lf, %lf\n", inf, sup);
-		sum = 0.0;
-
-		for (int j = 0; j < degree; ++j)
+		for (int i = 0; i < N; ++i)
 		{
-			double g = f(xi_to_x_gauss(abc[j], inf, sup));
-			double w = weighs[j];
+			
+			inf = a + i*interval;
+			sup = inf + interval;
+			printf("inf: %lf, sup: %lf\n", inf, sup);
+			sum = 0.0;
 
-			sum += g*w;
-			//printf("%f\n", sum);
+			for (int j = 0; j < degree; ++j)
+			{
+				double g = f(xi_to_x_gauss(abc[j], inf, sup));
+				printf("xi to x: %lf\n", xi_to_x_gauss(abc[j], inf, sup));
+				double w = weighs[j];
+				printf("g: %lf, w: %lf\n", g, w);
+				sum += g*w;
+				printf("sum: %f\n", sum);
+			}
+
+			integral += (sup-inf)*(1.0/2.0)*sum;
+			printf("%lf\n", integral);
+		
 		}
 
-		integral += (sup-inf)*(1.0/2.0)*sum;
-		printf("%lf\n", integral);
-	}
+		k++;
 
-	return integral;
+		if (fabs(integral_ant - integral) < epsilon){
+			return integral;
+		}
+	}
+	
+	printf("Número de passos superou o máximo!\n");
+	return NAN; 
 }
 
 double gauss_hermite(funcao f, int N, int degree, double a, double b){
@@ -368,6 +334,7 @@ double gauss_laguerre(funcao f, int N, int degree, double a, double b){
 		for (int j = 0; j < degree; ++j)
 		{
 			double g = f(xi_to_x_gauss(abc[j], inf, sup));
+			//double g = f(abc[j])
 			double w = weighs[j];
 
 			sum += g*w*exp(abc[j]);

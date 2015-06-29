@@ -1,0 +1,18 @@
+27423162 caractreres lidos
+26983934 caracteres escritos
+
+real	2m5.396s
+user	2m4.880s
+sys	0m0.124s
+
+26983934 caracteres lidos.
+27423162 caracteres escritos.
+
+real	0m30.018s
+user	0m29.948s
+sys	0m0.029s
+
+-rw-rw-r-- 1 carol carol 26M Mai 26 16:13 compress/stave.dat
+-rwxrwxrwx 1 carol carol 27M Mai 26 15:40 original/Stavechurch-heddal.bmp
+-rw-rw-r-- 1 carol carol 169K Mai 26 16:19 compress/patterns.dat
+-rw-r----- 1 carol carol 170K Mai 26 15:40 original/ch05-patterns.pdf

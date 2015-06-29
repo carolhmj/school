@@ -1,0 +1,14 @@
+173500 caractreres lidos
+170615 caracteres escritos
+
+real	0m0.879s
+user	0m0.868s
+sys	0m0.009s
+170615 caracteres lidos.
+173500 caracteres escritos.
+
+real	0m0.208s
+user	0m0.203s
+sys	0m0.005s
+-rw-rw-r-- 1 carol carol 169K Mai 26 16:19 compress/patterns.dat
+-rw-r----- 1 carol carol 170K Mai 26 15:40 original/ch05-patterns.pdf

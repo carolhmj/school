@@ -3,9 +3,9 @@
 #include <stdio.h>
 
 int main(){
-	double result = second_derivative_central_quadratic_error(teste, 2, 0.0000001);
-	printf("resultado: %lf\n", result);
-	return 1;
+	double result = first_derivative_central_fourth_error(teste, 2, 0.0001);
+	printf("O resultado da derivada é: %lf\n", result);
+	return 0;
 }
 
 double x2(double x){
@@ -51,4 +51,11 @@ double second_derivative_backward_quadratic_error(funcao f, double x, double del
 }
 double second_derivative_central_quadratic_error(funcao f, double x, double delta){
 	return (f(x+delta)-2*f(x)+f(x-delta)) / pow(delta, 2);
+}
+
+double first_derivative_central_fourth_error(funcao f, double x, double delta){
+	return (-f(x+2*delta)+8*f(x+delta)-8*f(x-delta)+f(x-2*delta)) / (12*delta);
+}
+double second_derivative_central_fourth_error(funcao f, double x, double delta){
+	return (-f(x+2*delta)+16*f(x+delta)-30*f(x)+16*f(x-delta)-f(x-2*delta)) / (12.0*pow(delta,2));
 }

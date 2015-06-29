@@ -1,0 +1,15 @@
+0 caractreres lidos
+0 caracteres escritos
+
+real	0m0.005s
+user	0m0.004s
+sys	0m0.001s
+Arquivo original não contem caracteres
+
+real	0m0.004s
+user	0m0.004s
+sys	0m0.001s
+-rw-rw-r-- 1 carol carol 0 Mai 26 15:58 decompress/empty_file.txt
+-rw-r----- 1 carol carol 0 Mai 26 15:39 original/empty_file.txt
+-rw-rw-r-- 1 carol carol 6,2M Mai 26 16:02 decompress/adventures_sherlock_holmes.txt
+-rw-r----- 1 carol carol 6,2M Mai 26 15:40 original/adventures_sherlock_holmes.txt
