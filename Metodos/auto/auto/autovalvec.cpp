@@ -167,7 +167,7 @@ resultado_transformacao jacobi(mat A, double epsilon)
 
             }
         }
-        Ares.print("Matriz do passo:");
+        //Ares.print("Matriz do passo:");
     }
 
     resultado_transformacao res;
@@ -226,7 +226,7 @@ resultado_transformacao diagonalizacao_QR(mat A, double epsilon)
 
         mat Q = QT.t();
         //Ares é R, multiplica por Q
-        Ares.print("Matriz R:");
+        //Ares.print("Matriz R:");
         Ares = Ares * Q;
         //Acumula Q
         acum = acum * Q;
@@ -236,4 +236,73 @@ resultado_transformacao diagonalizacao_QR(mat A, double epsilon)
     res.newmat = Ares;
     res.transformationseq = acum;
     return res;
+}
+
+
+std::vector<resultado> jacobi_aplicado(mat A, double epsilon)
+{
+    std::vector<resultado> autovalvec;
+    resultado_transformacao res = jacobi(A, epsilon);
+    //Encontra os autovetores da matriz resultado
+    for (unsigned int i = 0; i < A.n_cols; i++){
+        //Autovetores da matriz diagonal são as bases do espaço
+        vec autov_mod(A.n_rows, fill::zeros);
+        autov_mod(i) = 1.0;
+        //Multiplica pela sequência de transformações
+        vec autov = res.transformationseq * autov_mod;
+        //autov.print("autov:");
+        resultado r;
+        r.autoval = res.newmat(i,i);
+        r.autovec = autov;
+        autovalvec.push_back(r);
+    }
+
+    return autovalvec;
+}
+
+
+std::vector<resultado> QR_aplicado(mat A, double epsilon)
+{
+    std::vector<resultado> autovalvec;
+    resultado_transformacao res = diagonalizacao_QR(A, epsilon);
+    //Encontra os autovetores da matriz resultado
+    for (unsigned int i = 0; i < A.n_cols; i++){
+        //Autovetores da matriz diagonal são as bases do espaço
+        vec autov_mod(A.n_rows, fill::zeros);
+        autov_mod(i) = 1.0;
+        //Multiplica pela sequência de transformações
+        vec autov = res.transformationseq * autov_mod;
+        //autov.print("autov:");
+        resultado r;
+        r.autoval = res.newmat(i,i);
+        r.autovec = autov;
+        autovalvec.push_back(r);
+    }
+
+    return autovalvec;
+}
+
+
+std::vector<resultado> householder_aplicado(mat A, double epsilon)
+{
+    std::vector<resultado> autovalvec;
+    //Aplica Householder, resultado: matriz tridiagonal
+    resultado_transformacao res_house = householder_simpl(A);
+    //Aplica QR, resultado: matriz diagonal
+    resultado_transformacao res_QR = diagonalizacao_QR(res_house.newmat, epsilon);
+    //Encontra os autovetores da matriz resultado
+    for (unsigned int i = 0; i < A.n_cols; i++){
+        //Autovetores da matriz diagonal são as bases do espaço
+        vec autov_mod(A.n_rows, fill::zeros);
+        autov_mod(i) = 1.0;
+        //Multiplica pela sequência de transformações
+        vec autov = res_house.transformationseq * res_QR.transformationseq * autov_mod;
+        //autov.print("autov:");
+        resultado r;
+        r.autoval = res_QR.newmat(i,i);
+        r.autovec = autov;
+        autovalvec.push_back(r);
+    }
+
+    return autovalvec;
 }

@@ -6,14 +6,21 @@ using namespace arma;
 
 int main()
 {
-    std::cout << "Começando os trabalhos\n";
-
     mat A("4 2 1; 2 8 2; 1 2 6");
-    std::cout << "A matriz é: \n";
-    A.print(std::cout);
-    std::cout << "\n";
-    resultado_transformacao res = diagonalizacao_QR(A, 0.0001);
-    std::cout << "A matriz diagonal resultado de jacobi é: \n";
-    res.newmat.print(std::cout);
-    std::cout << "\n";
+    A.print("Matriz:");
+    std::vector<resultado> r = householder_aplicado(A, 0.001);
+    for (unsigned int i = 0; i < r.size(); i++){
+        std::cout << "Autovalor" << r[i].autoval << "\n";
+        r[i].autovec.print("Autovetor Householder+QR:");
+    }
+    std::vector<resultado> v = jacobi_aplicado(A, 0.001);
+    for (unsigned int i = 0; i < v.size(); i++){
+        std::cout << "Autovalor" << v[i].autoval << "\n";
+        v[i].autovec.print("Autovetor Jacobi:");
+    }
+    std::vector<resultado> l = QR_aplicado(A, 0.001);
+    for (unsigned int i = 0; i < l.size(); i++){
+        std::cout << "Autovalor" << l[i].autoval << "\n";
+        l[i].autovec.print("Autovetor QR:");
+    }
 }

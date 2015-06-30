@@ -5,13 +5,15 @@
 
 int main(int argc, char const *argv[])
 {
-	double result = gauss_legendre(teste, 0, 10, 2, 10000, 0.001);
+	double result = improper_integral_simple_exponencial(teste, 1, INFINITY, 1000, 0.0001);
 	printf("O resultado da integral é: %f\n", result);
+	//double tester = g_simple_exponencial(teste, 2, 1, 10);
+	//printf("%lf\n", tester);
 	return 0;
 }
 
 double teste(double x){
-	return x*x;
+	return 1/pow(x,3);
 }
 double teste_dupla(double x, double y){
 	return x+y;
@@ -151,10 +153,6 @@ double xi_to_x_gauss(double xi, double a, double b){
 	return (a+b)*(1.0/2.0) + xi*(b-a)*(1.0/2.0);
 }
 
-double xi_to_x_hermite(double xi, double a, double b){
-	return (a+b)*(1.0/2.0) + (b-a)*(1.0/2.0)*tanh(xi);
-}
-
 double gauss_legendre(funcao f, double a, double b, int degree, int step_limit, double epsilon){
 	//Fonte dos pesos: http://pomax.github.io/bezierinfo/legendre-gauss.html
 	double sup, inf, sum, integral_ant, integral = 0.0, weighs[degree], abc[degree], interval;
@@ -231,13 +229,15 @@ double gauss_legendre(funcao f, double a, double b, int degree, int step_limit, 
 	return NAN; 
 }
 
-double gauss_hermite(funcao f, int N, int degree, double a, double b){
-	//Fonte dos pesos: http://www.efunda.com/math/num_integration/findgausshermite.cfm
-	double sup, inf, sum, integral = 0.0, weighs[degree], abc[degree], interval = (b-a)/N;
 
+double gauss_hermite(funcao f, int degree){
+	//Fonte dos pesos: http://www.efunda.com/math/num_integration/findgausshermite.cfm
+	double integral = 0.0, weighs[degree], abc[degree];
+
+	//Armazena as abcissas e os pesos = peso_k * e^(-(abcissa_k)^2)
 	if (degree == 2){
 
-		double assign_w[] = {0.886226925453, 0.886226925453};
+		double assign_w[] = {1.46114118266, 1.46114118266};
 		double assign_abc[] = {-0.707106781187, 0.707106781187};
 
 		for (int i = 0; i < degree; ++i) {
@@ -245,7 +245,7 @@ double gauss_hermite(funcao f, int N, int degree, double a, double b){
 			abc[i] = assign_abc[i];
 		}	
 	} else if (degree == 3){
-		double assign_w[] = {0.295408975151, 1.1816359006, 0.295408975151};
+		double assign_w[] = {1.32393117521, 1.1816359006, 1.32393117521};
 		double assign_abc[] = {-1.22474487139, 0, 1.22474487139};
 
 		for (int i = 0; i < degree; ++i) {
@@ -253,7 +253,7 @@ double gauss_hermite(funcao f, int N, int degree, double a, double b){
 			abc[i] = assign_abc[i];
 		}	
 	} else if (degree == 4) {
-		double assign_w[] = {0.0813128354472, 0.804914090006, 0.804914090006, 0.0813128354472};
+		double assign_w[] = {1.2402258177, 1.05996448289, 1.05996448289, 1.2402258177};
 		double assign_abc[] = {-1.65068012389, -0.524647623275, 0.524647623275, 1.65068012389};	
 		
 		for (int i = 0; i < degree; ++i) {
@@ -265,37 +265,22 @@ double gauss_hermite(funcao f, int N, int degree, double a, double b){
 		return NAN;
 	}
 
-	for (int i = 0; i < N; ++i)
-	{
-		
-		inf = a + i*interval;
-		sup = inf + interval;
-		//printf("%lf, %lf\n", inf, sup);
-		sum = 0.0;
 
-		for (int j = 0; j < degree; ++j)
-		{
-			double g = f(xi_to_x_hermite(abc[j], inf, sup));
-			double w = weighs[j];
-
-			sum += g*w*exp(pow(abc[j],2))*(1.0/pow(cosh(abc[j]),2));
-			//printf("%f\n", sum);
-		}
-
-		integral += (sup-inf)*(1.0/2.0)*sum;
-		//printf("%lf\n", integral);
+	for (int i = 0; i < degree; i++) {
+		integral += weighs[i] * f(abc[i]);
 	}
 
 	return integral;
 }
 
-//Arrumar uma função que mapeia de 0 a infinito
-double gauss_laguerre(funcao f, int N, int degree, double a, double b){
-	//Fonte dos pesos: http://www.efunda.com/math/num_integration/findgausslaguerre.cfm
-	double sup, inf, sum, integral = 0.0, weighs[degree], abc[degree], interval = (b-a)/N;
 
+double gauss_laguerre(funcao f, int degree){
+	//Fonte dos pesos: http://www.efunda.com/math/num_integration/findgausslaguerre.cfm
+	double integral = 0.0, weighs[degree], abc[degree];
+
+	//Armazena as abcissas e os pesos = peso_k * e^(abcissa_k)
 	if (degree == 2){
-		double assign_w[] = {0.853553390593, 0.146446609407};
+		double assign_w[] = {1.53332603312, 4.45095733505};
 		double assign_abc[] = {0.585786437627, 3.41421356237};
 
 		for (int i = 0; i < degree; ++i) {
@@ -303,7 +288,7 @@ double gauss_laguerre(funcao f, int N, int degree, double a, double b){
 			abc[i] = assign_abc[i];
 		}	
 	} else if (degree == 3){
-		double assign_w[] = {0.711093009929, 0.278517733569, 0.0103892565016};
+		double assign_w[] = {1.07769285927, 2.7621429619, 5.60109462543};
 		double assign_abc[] = {0.415774556783, 2.29428036028, 6.28994508294};
 
 		for (int i = 0; i < degree; ++i) {
@@ -311,7 +296,7 @@ double gauss_laguerre(funcao f, int N, int degree, double a, double b){
 			abc[i] = assign_abc[i];
 		}	
 	} else if (degree == 4) {
-		double assign_w[] = {0.603154104342, 0.357418692438, 0.038887908515, 0.000539294705561};
+		double assign_w[] = {0.832739123838, 2.04810243845, 3.63114630582, 6.48714508441};
 		double assign_abc[] = {0.322547689619, 1.74576110116, 4.53662029692, 9.3950709123};	
 		
 		for (int i = 0; i < degree; ++i) {
@@ -323,54 +308,49 @@ double gauss_laguerre(funcao f, int N, int degree, double a, double b){
 		return NAN;
 	}
 
-	for (int i = 0; i < N; ++i)
-	{
-		
-		inf = a + i*interval;
-		sup = inf + interval;
-		//printf("%lf, %lf\n", inf, sup);
-		sum = 0.0;
-
-		for (int j = 0; j < degree; ++j)
-		{
-			double g = f(xi_to_x_gauss(abc[j], inf, sup));
-			//double g = f(abc[j])
-			double w = weighs[j];
-
-			sum += g*w*exp(abc[j]);
-			//printf("%f\n", sum);
-		}
-
-		integral += (sup-inf)*(1.0/2.0)*sum;
-		printf("%lf\n", integral);
+	for (int i = 0; i < degree; i++) {
+		integral += weighs[i] * f(abc[i]);
 	}
 
 	return integral;
 }
 
-double gauss_cheby(funcao f, int N, int degree, double a, double b){
-	double sup, inf, sum, integral = 0.0, interval = (b-a)/N;
+double gauss_cheby(funcao f, int degree){
+	//Fonte dos pesos: http://keisan.casio.com/exec/system/1329114617
+	double integral = 0.0, weighs[degree], abc[degree];
 
-	for (int i = 0; i < N; ++i)
-	{
-		inf = a + i*interval;
-		sup = inf + interval;
-		//printf("%lf, %lf\n", inf, sup);
+	//Armazena as abcissas e os pesos = peso_k * 1/(sqrt(1-abcissa_k^2))
+	if (degree == 2){
+		double assign_w[] = {1.1107207345396, 1.1107207345396};
+		double assign_abc[] = {-0.70710678118655,0.70710678118655};
 
-		sum = 0.0;
+		for (int i = 0; i < degree; ++i) {
+			weighs[i] = assign_w[i];
+			abc[i] = assign_abc[i];
+		}	
+	} else if (degree == 3){
+		double assign_w[] = {0.5235987755983, 1.0471975511966, 0.5235987755983};
+		double assign_abc[] = {-0.86602540378444, 0, 0.86602540378444};
 
-		for (int j = 1; j <= degree; ++j)
-		{
-			double xi = cos( PI * (2.0*j-1.0)/(2.0*degree) );
-
-			double g = f(xi_to_x_gauss(xi, inf, sup)) * sqrt(1-(xi*xi));
-			//printf("raiz: %lf funcao: %lf\n", sqrt((1-xi*xi)), f(xi_to_x_gauss(xi, inf, sup)));
-			sum += g;
-			//printf("sum: \t%lf\n", sum);
-		}
+		for (int i = 0; i < degree; ++i) {
+			weighs[i] = assign_w[i];
+			abc[i] = assign_abc[i];
+		}	
+	} else if (degree == 4) {
+		double assign_w[] = {0.30055886494217, 0.72561328803486, 0.72561328803486, 0.3005588649422};
+		double assign_abc[] = {-0.92387953251129, -0.38268343236509, 0.38268343236509, 0.92387953251129};	
 		
-		integral += ( (PI/degree)*(sup-inf)*(1.0/2.0) ) * sum;
-		//printf("%lf\n", integral);
+		for (int i = 0; i < degree; ++i) {
+			weighs[i] = assign_w[i];
+			abc[i] = assign_abc[i];
+		}
+	} else {
+		printf("Por favor, informe um grau entre 2 e 4.\n");
+		return NAN;
+	}
+
+	for (int i = 0; i < degree; i++) {
+		integral += weighs[i] * f(abc[i]);
 	}
 
 	return integral;
@@ -378,8 +358,9 @@ double gauss_cheby(funcao f, int N, int degree, double a, double b){
 
 double g_simple_exponencial(funcao f, double xi, double a, double b){
 	double deriv = (b-a)*(2.0/(exp(2*xi)+2+exp(-2*xi)));
+	printf("%lf deriv\n",deriv);
 	double x = (a+b)/2.0 + ((b-a)/2.0)*tanh(xi);
-
+	printf("%lf x\n", x);
 	return f(x)*deriv;
 }
 
@@ -399,25 +380,26 @@ double improper_integral_simple_exponencial(funcao f, double a, double b, int st
 	{
 		xi_inf = inf_interval*i;
 		xi_sup = sup_interval*i;
-		printf("xi_inf: %lf xi_sup: %lf\n", xi_inf, xi_sup);
-		printf("i: %d\n", i);
+		//printf("xi_inf: %lf xi_sup: %lf\n", xi_inf, xi_sup);
+		//printf("i: %d\n", i);
 		for (int j = 1; j <= step_limit; ++j)
 		{
-			N = 2*j;
+			N = 2*i;
 
 			double xi, interval = (xi_sup-xi_inf)/N, sum = 0.0;
 			printf("j: %d, N: %d\n", j, N);
 			for (int k = 0; k < N; ++k)
 			{
-				printf("k: %d\n", k);
+				//printf("k: %d\n", k);
 				xi = xi_inf+(2.0*k+1.0)*(interval/2.0);
-				printf("xi: %lf ", xi);
+				//printf("xi: %lf ", xi);
 				sum += g_simple_exponencial(f, xi, a, b);
+				//sum += g_simple_exponencial(f, xi, xi_inf, xi_sup);
 				printf("sum: %lf\n", sum);
 			}
 
 			integral_atual = sum*interval;
-			printf("integral_atual: %lf\n", integral_atual);
+			//printf("integral_atual: %lf\n", integral_atual);
 
 			if (fabs(integral_atual - integral_ant) < epsilon) {
 				break;
@@ -427,14 +409,14 @@ double improper_integral_simple_exponencial(funcao f, double a, double b, int st
 		}
 
 		integral_c_atual = integral_atual;
-		printf("integral_c_atual: %lf\n", integral_c_atual);
-		printf("integral_c_anterior: %lf\n", integral_c_anterior);
+		//printf("integral_c_atual: %lf\n", integral_c_atual);
+		//printf("integral_c_anterior: %lf\n", integral_c_anterior);
 		if (fabs(integral_c_atual - integral_c_anterior) < epsilon) {
 			return integral_c_atual;
 		}
 		integral_c_anterior = integral_c_atual;
 	}
-
+	printf("Número de passos excedido!\n");
 	return NAN;
 }
 
@@ -496,13 +478,13 @@ double double_integral(funcao_dupla f, double xa, double xb, funcao yi, funcao y
 		for (int xi = 0; xi < degree; ++xi)
 		{
 			double yi_val = yi(x), ys_val = ys(x);
-			printf("yi_val: %lf ys_val: %lf\n", yi_val, ys_val);
+			//printf("yi_val: %lf ys_val: %lf\n", yi_val, ys_val);
 			constant_y = (ys_val-yi_val)/2.0;
-			printf("const_y: %lf\n", constant_y);
+			//printf("const_y: %lf\n", constant_y);
 			y = xi_to_x_gauss(abc[xi], yi_val, ys_val);
 
 			sum += constant_y*weighs[eta]*weighs[xi]*f(x,y);
-			printf("sum: %lf\n", sum);
+			//printf("sum: %lf\n", sum);
 		}
 	}
 	return sum*constant_x;
