@@ -2,6 +2,7 @@
 #include <vector>
 #include <armadillo>
 #include <algorithm>
+#include <cmath>
 
 vec diferenca_finita(double a, double b, int N, mask regular_mask, boundary regular_condition, boundary condition_a, boundary condition_b, std::vector<int> special_points, std::vector<mask> special_masks)
 {
@@ -22,7 +23,7 @@ vec diferenca_finita(double a, double b, int N, mask regular_mask, boundary regu
         }
 
         //Checa se i é um dos pontos em que existe uma máscara especial para aplicar no vetor de máscaras; caso contrário aplica a máscara regular
-        mask::iterator find_ind = std::find(special_points.begin(), special_points.end(), i);
+        std::vector<int>::iterator find_ind = std::find(special_points.begin(), special_points.end(), i);
         mask m;
         if (find_ind != special_points.end()) {
             int index = find_ind - special_points.begin();
@@ -32,8 +33,8 @@ vec diferenca_finita(double a, double b, int N, mask regular_mask, boundary regu
         }
         //Insere os valores da máscara escolhida na matriz
         int k = 0;
-        for (int j = i - mask.n_left; j <= i + mask.n_right; j++) {
-            M_mask(i,j) = mask.val[k];
+        for (int j = i - m.n_left ; j <= i + m.n_right ; j++) {
+            M_mask(i,j) = m.val[k];
             k++;
         }
     }
@@ -41,5 +42,6 @@ vec diferenca_finita(double a, double b, int N, mask regular_mask, boundary regu
     M_mask.print("Matriz de máscaras");
     V_boundary.print("Vetor de contornos");
 
-    return solve(M_mask, V_boundary);
+    vec result = solve(M_mask, V_boundary);
+    return result;
 }

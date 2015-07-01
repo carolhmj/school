@@ -8,6 +8,8 @@ int main()
 {
     mat A("4 2 1; 2 8 2; 1 2 6");
     A.print("Matriz:");
+    vec t = {1,2,2};
+    resultado teste = potencia_inversa(A, t, 0.01);
     std::vector<resultado> r = householder_aplicado(A, 0.001);
     for (unsigned int i = 0; i < r.size(); i++){
         std::cout << "Autovalor" << r[i].autoval << "\n";

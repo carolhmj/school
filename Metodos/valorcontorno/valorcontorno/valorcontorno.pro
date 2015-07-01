@@ -21,7 +21,14 @@ SOURCES += main.cpp \
 
 LIBS += -larmadillo
 
-QMAKE_CXXFLAGS += -g
-
 HEADERS += \
     diferencafinita.h
+
+QMAKE_CXXFLAGS += -g
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../../../usr/lib64/release/ -larmadillo
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../../../usr/lib64/debug/ -larmadillo
+else:unix: LIBS += -L$$PWD/../../../../../../../usr/lib64/ -larmadillo
+
+INCLUDEPATH += $$PWD/../../../../../../../usr/lib64
+DEPENDPATH += $$PWD/../../../../../../../usr/lib64

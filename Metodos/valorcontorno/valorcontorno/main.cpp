@@ -3,7 +3,9 @@
 #include <armadillo>
 #include <cmath>
 
-int main(int argc, char *argv[])
+using namespace arma;
+
+int main()
 {
     mask m1, m2, m3;
     //máscara 89/25 -32/25
@@ -26,8 +28,9 @@ int main(int argc, char *argv[])
     std::vector<int> p = {0,7}; //pontos com máscaras especiais
 
     boundary b1 = [](double x) {return 32/25 + std::exp(-0.2*x);} ;
-    boundary b2 = [](double x) {return std::exp(-0.2*x)} ;
-    boundary b3 = [](double x) {return std::exp(-0.2*x)} ;
+    boundary b2 = [](double x) {return std::exp(-0.2*x);} ;
+    boundary b3 = [](double x) {return std::exp(-0.2*x);} ;
 
     vec res = diferenca_finita(5/4, 10, 8, m2, b2, b1, b3, p, m);
+    res.print("Valores nos pontos");
 }

@@ -4,6 +4,8 @@
 #include <armadillo>
 #include <vector>
 
+using namespace arma;
+
 typedef struct mask_ {
     std::vector<double> val;
     int n_left;
