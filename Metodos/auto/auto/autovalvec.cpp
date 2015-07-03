@@ -69,22 +69,27 @@ std::vector<resultado> potencia_deslocamento(mat A, vec inicial, double epsilon,
 {
     double maior_autov = potencia_regular(A,inicial,epsilon).autoval;
     double menor_autov = potencia_inversa(A,inicial,epsilon).autoval;
+    //std::cout << "Maior autovalor: " << maior_autov << " Menor autovalor: " << menor_autov << "\n";
     std::vector<resultado> retorno;
-    resultado res_atual;
-    double deslocamento_atual = deslocamento;
+    resultado res_atual, res_anterior;
+    res_anterior.autoval = 0;
 
+    //Cria a matriz identidade
     mat I(A.n_rows,A.n_cols,fill::eye);
-    mat B = A - deslocamento_atual*I;
 
-    while (true){
-        res_atual = potencia_inversa(B,inicial,epsilon);
-        if ((res_atual.autoval + deslocamento_atual < maior_autov) && (res_atual.autoval + deslocamento_atual > menor_autov)){
-            retorno.push_back(res_atual);
-            deslocamento_atual += deslocamento;
-        } else {
-            break;
-        }
+
+    for (double k = -std::fabs(maior_autov); k < std::fabs(maior_autov); k += deslocamento) {
+        //Cria a matriz B = A - lambda * I
+        mat B = A - k*I;
+
+        //Calcula o autovalor/vetor mais próximo
+        res_atual = potencia_inversa(B, inicial, epsilon);
+        //Desloca o valor de volta
+        res_atual.autoval += k;
+        retorno.push_back(res_atual);
+        res_anterior = res_atual;
     }
+
     return retorno;
 }
 
@@ -99,7 +104,7 @@ resultado_transformacao householder_simpl(mat A)
         mat H(A.n_rows, A.n_cols, fill::eye);
         vec n = construir_n(Ares,j);
         H = H - 2*(n*n.t());
-        H.print("Householder: ");
+        //H.print("Householder: ");
         //Aplica a matriz de householder em A, e também acumula
         acum = acum * H;
         Ares = H * Ares * H;
@@ -119,23 +124,23 @@ vec construir_n(mat A, int j)
     for (unsigned int i = 0; i < A.n_rows-j; i++){
         p(i) = A(j+i, j-1);
     }
-    p.print("p: ");
+    //p.print("p: ");
 
     double p_norm = norm(p);
     vec p2(A.n_rows-j, fill::zeros);
     p2[0] = -1 * std::copysign(1.0, p(0)) * p_norm;
-    p2.print("p2: ");
+    //p2.print("p2: ");
 
     vec dist = p - p2;
     double dist_norm = norm(dist);
-    dist.print("dist: ");
+    //dist.print("dist: ");
 
     vec ntemp(A.n_rows - j);
     ntemp = (1/dist_norm) * dist;
     for (unsigned int i = 0; i < A.n_rows-j; i++){
         n(j+i) = ntemp(i);
     }
-    n.print("n: ");
+    //n.print("n: ");
     return n;
 }
 
